@@ -7,7 +7,9 @@ function App() {
   const [clima, setClima] = useState(null);
   const [logueado, setLogueado] = useState(false);
 
-  const API_URL = "http://localhost:3000/api";
+  // ⛔ NO usar localhost en producción
+  // ✅ Usamos variable de entorno para local y Railway
+  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
 
   // 🔐 LOGIN
   const handleLogin = async () => {
@@ -17,8 +19,14 @@ function App() {
         headers: {
           "Content-Type": "application/json",
         },
+        credentials: "include", // opcional si usas cookies
         body: JSON.stringify({ username, password }),
       });
+
+      if (!res.ok) {
+        alert("Error en el servidor");
+        return;
+      }
 
       const data = await res.json();
 
@@ -30,7 +38,7 @@ function App() {
       }
     } catch (error) {
       console.error(error);
-      alert("Error en el servidor");
+      alert("Error al conectar con el servidor");
     }
   };
 
@@ -53,12 +61,14 @@ function App() {
       {!logueado ? (
         <div>
           <h2>Login</h2>
+
           <input
             placeholder="Usuario"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
           />
           <br />
+
           <input
             type="password"
             placeholder="Contraseña"
@@ -66,16 +76,19 @@ function App() {
             onChange={(e) => setPassword(e.target.value)}
           />
           <br />
+
           <button onClick={handleLogin}>Iniciar sesión</button>
         </div>
       ) : (
         <div>
           <h2>Clima</h2>
+
           <input
             placeholder="Ciudad"
             value={ciudad}
             onChange={(e) => setCiudad(e.target.value)}
           />
+
           <button onClick={obtenerClima}>Buscar</button>
 
           {clima && clima.main && (
